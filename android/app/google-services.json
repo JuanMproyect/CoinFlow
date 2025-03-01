@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "5505073081",
+    "project_id": "databasecoinflow",
+    "storage_bucket": "databasecoinflow.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:5505073081:android:f029344c75d0855fa54068",
+        "android_client_info": {
+          "package_name": "com.example.coinflow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-GQxCLRvjsdS8Te9zS9xsLrHkw3il74s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
