@@ -1,41 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../main.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<GestorTema>(context);
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.settings, size: 28),
-            SizedBox(width: 8),
-            Text('Configuración'),
-          ],
-        ),
+        title: const Text('Ajustes'),
       ),
       body: ListView(
+        padding: const EdgeInsets.all(16),
         children: [
-          const SizedBox(height: 16),
           Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            child: ListTile(
-              leading: Icon(
-                Icons.color_lens,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              title: const Text('Tema'),
-              subtitle: const Text('Claro'),
-              trailing: Switch(
-                value: false,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (value) {},
+            margin: const EdgeInsets.only(bottom:16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Apariencia',
+                   style: TextStyle(
+                   fontSize: 18,
+                   fontWeight:FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height:16),
+                  SwitchListTile(
+                    title: const Text('Modo oscuro'),
+                    subtitle: Text(
+                      themeProvider.isDarkMode ? 'Activado':'Desactivado'
+                    ),
+                    value: themeProvider.isDarkMode,
+                    onChanged: (_) {
+                      themeProvider.toggleTheme();
+                    },
+                    secondary: Icon(
+                      themeProvider.isDarkMode 
+                          ? Icons.dark_mode: Icons.light_mode,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          Card(
+          
+          //Notificaciones **
+           Card(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             child: ListTile(
               leading: Icon(
