@@ -4,8 +4,14 @@ import 'Screens/favorites.dart';
 import 'Screens/history.dart';
 import 'Screens/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  //Inicializar firebase
+await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+);
   runApp(
     // ChangeNotifierProvider: Permite gestionar el estado del tema en toda la app
     ChangeNotifierProvider(
