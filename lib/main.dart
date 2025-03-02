@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 void main() {
   runApp(
+    // ChangeNotifierProvider: Permite gestionar el estado del tema en toda la app
     ChangeNotifierProvider(
       create: (context) => GestorTema(),
       child:const CoinFlowApp(),
@@ -19,9 +20,10 @@ class GestorTema extends ChangeNotifier {
   ThemeMode get themeMode => _modoTema;
   bool get isDarkMode => _modoTema == ThemeMode.dark;
 
+  // Método para alternar entre tema claro y oscuro
   void toggleTheme() {
     _modoTema=_modoTema == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-    notifyListeners();
+    notifyListeners(); // Notifica a los widgets que escuchan este cambio
   }
 }
 
@@ -30,15 +32,17 @@ class CoinFlowApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Obtiene el proveedor del tema para acceder al modo actual
     final themeProvider = Provider.of<GestorTema>(context);
     
+    // MaterialApp: Widget raíz que configura la aplicación
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false, // Oculta el banner de debug
       title: 'CoinFlow',
-      themeMode: themeProvider.themeMode,
-      theme: _buildLightTheme(),
-      darkTheme: _buildDarkTheme(),
-      home: const NavigationScreen(),
+      themeMode: themeProvider.themeMode, // Usa el modo de tema actual (claro/oscuro)
+      theme: _buildLightTheme(), // Definición del tema claro
+      darkTheme: _buildDarkTheme(), // Definición del tema oscuro
+      home: const NavigationScreen(), // Pantalla inicial con navegación
     );
   }
 
@@ -46,6 +50,7 @@ class CoinFlowApp extends StatelessWidget {
   ThemeData _buildLightTheme() {
     return ThemeData(
       useMaterial3: true,
+      // ColorScheme: Define los colores principales del tema claro
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF2563EB), // Azul más profundo como color base
         primary: const Color(0xFF2563EB),
@@ -60,6 +65,7 @@ class CoinFlowApp extends StatelessWidget {
         onSurface: const Color(0xFF1E293B), // Consistencia en textos
         brightness: Brightness.light,
       ),
+      // AppBarTheme: Estilo para la barra superior de la aplicación
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF2563EB),
         foregroundColor: Colors.white,
@@ -70,6 +76,7 @@ class CoinFlowApp extends StatelessWidget {
         ),
         shadowColor: Colors.black38,
       ),
+      // ElevatedButtonTheme: Estilo para los botones elevados
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF2563EB),
@@ -83,6 +90,7 @@ class CoinFlowApp extends StatelessWidget {
           shadowColor: Colors.black54,
         ),
       ),
+      // InputDecorationTheme: Estilo para los campos de entrada de texto
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
@@ -109,11 +117,13 @@ class CoinFlowApp extends StatelessWidget {
         ),
         floatingLabelStyle: const TextStyle(color: Color(0xFF3B82F6)),
       ),
+      // CardTheme: Estilo para las tarjetas
       cardTheme: CardTheme(
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
       ),
+      // BottomNavigationBarTheme: Estilo para la barra de navegación inferior
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         selectedItemColor: Color(0xFF2563EB),
         unselectedItemColor: Color.fromARGB(255, 158, 158, 158),
@@ -125,13 +135,14 @@ class CoinFlowApp extends StatelessWidget {
   ThemeData _buildDarkTheme() {
     return ThemeData(
       useMaterial3: true,
+      // ColorScheme: Define los colores principales del tema oscuro
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF2563EB),
         primary: const Color(0xFF3B82F6),
         secondary: const Color(0xFF38BDF8),
         tertiary: const Color(0xFF7DD3FC),
-        background: const Color(0xFF0F172A), 
-        surface: const Color(0xFF1E293B), 
+        background: const Color(0xFF0F172A), // Fondo oscuro
+        surface: const Color(0xFF1E293B), // Superficie oscura
         error: const Color(0xFFF87171), 
         onPrimary: Colors.white,
         onSecondary: Colors.white,
@@ -139,8 +150,9 @@ class CoinFlowApp extends StatelessWidget {
         onSurface: Colors.white,
         brightness: Brightness.dark,
       ),
+      // AppBarTheme: Estilo para la barra superior oscura
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF1E40AF), //azul más oscuro
+        backgroundColor: Color.fromARGB(57, 30, 64, 175), //azul más oscuro
         foregroundColor: Colors.white,
         elevation:4,
         centerTitle: true,
@@ -149,6 +161,7 @@ class CoinFlowApp extends StatelessWidget {
         ),
         shadowColor: Colors.black54,
       ),
+      // ElevatedButtonTheme: Estilo para botones en modo oscuro
       elevatedButtonTheme:ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF3B82F6),
@@ -162,7 +175,7 @@ class CoinFlowApp extends StatelessWidget {
           shadowColor: Colors.black87,
         ),
       ),
-      //diseño de los TextFields
+      // InputDecorationTheme: Estilo para campos de entrada en modo oscuro
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFF1E293B),
@@ -187,12 +200,14 @@ class CoinFlowApp extends StatelessWidget {
         ),
         floatingLabelStyle: const TextStyle(color: Color(0xFF60A5FA)),
       ),
+      // CardTheme: Estilo para tarjetas en modo oscuro
       cardTheme: CardTheme(
         elevation: 3,
         color: const Color(0xFF1E293B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
       ),
+      // BottomNavigationBarTheme: Estilo para la barra inferior en modo oscuro
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Color(0xFF0F172A),
         selectedItemColor: Color(0xFF60A5FA),
@@ -210,8 +225,9 @@ class NavigationScreen extends StatefulWidget {
 }
 
 class _NavigationScreenState extends State<NavigationScreen> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; // Índice de la pantalla seleccionada
   
+  // Lista de pantallas disponibles en la navegación
   final List<Widget> _screens = const [
     HomeScreen(),
     FavoritesScreen(),
@@ -222,10 +238,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Body: Muestra la pantalla seleccionada según el índice actual
       body: _screens[_selectedIndex],
+      // BottomNavigationBar: Barra de navegación inferior con íconos
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        type: BottomNavigationBarType.fixed,
+        type: BottomNavigationBarType.fixed, // Mantiene todos los ítems visibles
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -244,6 +262,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
             label: 'Ajustes',
           ),
         ],
+        // Cambia la pantalla al tocar un ícono en la barra de navegación
         onTap: (index) {
           setState(() {
             _selectedIndex = index;
