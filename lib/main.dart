@@ -6,21 +6,24 @@ import 'Screens/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
-  //Inicializar firebase
-await Firebase.initializeApp(
+  WidgetsFlutterBinding.ensureInitialized();
+  // Inicializar Firebase
+  await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-);
+  );
   runApp(
     // ChangeNotifierProvider: Permite gestionar el estado del tema en toda la app
     ChangeNotifierProvider(
       create: (context) => GestorTema(),
-      child:const CoinFlowApp(),
+      child: const CoinFlowApp(),
     ),
   );
 }
-//Proveedor que maneja el estado del tema
+
+// Proveedor que maneja el estado del tema
 class GestorTema extends ChangeNotifier {
   ThemeMode _modoTema = ThemeMode.light;
   ThemeMode get themeMode => _modoTema;
@@ -28,7 +31,7 @@ class GestorTema extends ChangeNotifier {
 
   // Método para alternar entre tema claro y oscuro
   void toggleTheme() {
-    _modoTema=_modoTema == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    _modoTema = _modoTema == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
     notifyListeners(); // Notifica a los widgets que escuchan este cambio
   }
 }
@@ -40,7 +43,7 @@ class CoinFlowApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // Obtiene el proveedor del tema para acceder al modo actual
     final themeProvider = Provider.of<GestorTema>(context);
-    
+
     // MaterialApp: Widget raíz que configura la aplicación
     return MaterialApp(
       debugShowCheckedModeBanner: false, // Oculta el banner de debug
@@ -52,7 +55,7 @@ class CoinFlowApp extends StatelessWidget {
     );
   }
 
-  //Tema claro original
+  // Tema claro original
   ThemeData _buildLightTheme() {
     return ThemeData(
       useMaterial3: true,
@@ -105,17 +108,17 @@ class CoinFlowApp extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
-        //borde cuando el texto está habilitado
-        enabledBorder: OutlineInputBorder( 
+        // borde cuando el texto está habilitado
+        enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
         ),
-        //borde cuando el texto está enfocado
+        // borde cuando el texto está enfocado
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 2),
         ),
-        //borde cuando hay error en la entrada
+        // borde cuando hay error en la entrada
         hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -137,7 +140,7 @@ class CoinFlowApp extends StatelessWidget {
     );
   }
 
-  //Tema oscuro
+  // Tema oscuro
   ThemeData _buildDarkTheme() {
     return ThemeData(
       useMaterial3: true,
@@ -149,7 +152,7 @@ class CoinFlowApp extends StatelessWidget {
         tertiary: const Color(0xFF7DD3FC),
         background: const Color(0xFF0F172A), // Fondo oscuro
         surface: const Color(0xFF1E293B), // Superficie oscura
-        error: const Color(0xFFF87171), 
+        error: const Color(0xFFF87171),
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onBackground: Colors.white,
@@ -158,9 +161,9 @@ class CoinFlowApp extends StatelessWidget {
       ),
       // AppBarTheme: Estilo para la barra superior oscura
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color.fromARGB(57, 30, 64, 175), //azul más oscuro
+        backgroundColor: Color.fromARGB(57, 30, 64, 175), // azul más oscuro
         foregroundColor: Colors.white,
-        elevation:4,
+        elevation: 4,
         centerTitle: true,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
@@ -168,7 +171,7 @@ class CoinFlowApp extends StatelessWidget {
         shadowColor: Colors.black54,
       ),
       // ElevatedButtonTheme: Estilo para botones en modo oscuro
-      elevatedButtonTheme:ElevatedButtonThemeData(
+      elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF3B82F6),
           foregroundColor: Colors.white,
@@ -199,7 +202,6 @@ class CoinFlowApp extends StatelessWidget {
           borderSide: const BorderSide(color: Color(0xFF60A5FA), width: 2),
         ),
         hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-        //borde de error
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Color(0xFFF87171), width: 1.5),
@@ -223,6 +225,7 @@ class CoinFlowApp extends StatelessWidget {
   }
 }
 
+// Navegación principal con la barra de navegación inferior
 class NavigationScreen extends StatefulWidget {
   const NavigationScreen({super.key});
 
@@ -231,9 +234,9 @@ class NavigationScreen extends StatefulWidget {
 }
 
 class _NavigationScreenState extends State<NavigationScreen> {
-  int _selectedIndex = 0; // Índice de la pantalla seleccionada
-  
-  // Lista de pantallas disponibles en la navegación
+  int _selectedIndex = 0;
+
+  // Lista de pantallas a navegar
   final List<Widget> _screens = const [
     HomeScreen(),
     FavoritesScreen(),
@@ -244,12 +247,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Body: Muestra la pantalla seleccionada según el índice actual
-      body: _screens[_selectedIndex],
-      // BottomNavigationBar: Barra de navegación inferior con íconos
+      body: _screens[_selectedIndex], // Muestra la pantalla seleccionada
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        type: BottomNavigationBarType.fixed, // Mantiene todos los ítems visibles
+        currentIndex: _selectedIndex, // Índice actual de la barra
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -268,10 +269,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
             label: 'Ajustes',
           ),
         ],
-        // Cambia la pantalla al tocar un ícono en la barra de navegación
         onTap: (index) {
           setState(() {
-            _selectedIndex = index;
+            _selectedIndex = index; // Cambia la pantalla cuando se toca
           });
         },
       ),
