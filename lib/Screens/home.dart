@@ -1,12 +1,120 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';  // Asegúrate de importar Firestore
+import '../services/currency_service_api.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final CurrencyService _currencyService = CurrencyService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;  // Instancia de Firestore
+
+  double cantidad = 0.0;
+  String? monedaOrigen;
+  String? monedaDestino;
+  double resultado = 0.0;
+  bool _isLoading = false;
+  bool _isLoadingCurrencies = false;
+  List<String> _monedas = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadCurrencies();
+  }
+
+  // Método para cargar las monedas disponibles
+  Future<void> loadCurrencies() async {
+    setState(() {
+      _isLoadingCurrencies = true;
+    });
+    try {
+      final monedasDisponibles = await _currencyService.getAvailableCurrencies('USD');
+      setState(() {
+        _monedas = monedasDisponibles;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al cargar monedas: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoadingCurrencies = false;
+      });
+    }
+  }
+
+  // Método para guardar la conversión en Firestore
+  Future<void> _guardarConversion() async {
+    try {
+      // Guardar la conversión en la colección 'conversiones'
+      await _firestore.collection('conversiones').add({
+        'cantidad': cantidad,
+        'monedaOrigen': monedaOrigen,
+        'monedaDestino': monedaDestino,
+        'resultado': resultado,
+        'fecha': DateTime.now(),
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al guardar la conversión: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  // Método para realizar la conversión
+  Future<void> convertirMoneda() async {
+    if (cantidad <= 0 || monedaOrigen == null || monedaDestino == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, completa todos los campos.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final resultadoConversion = await _currencyService.convertCurrency(
+        cantidad,
+        monedaOrigen!,
+        monedaDestino!,
+      );
+      setState(() {
+        resultado = resultadoConversion;
+      });
+      await _guardarConversion(); // Llamada para guardar la conversión en Firestore
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar: Barra superior con el logo de la aplicación
       appBar: AppBar(
         title: Center(
           child: Image.asset(
@@ -15,246 +123,181 @@ class HomeScreen extends StatelessWidget {
             fit: BoxFit.contain,
           ),
         ),
-        toolbarHeight: 80, // Altura personalizada para la barra
+        toolbarHeight: 80,
         centerTitle: true,
       ),
-      // Body: Contenido principal de la pantalla usando desplazamiento
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Banner informativo: Muestra información sobre la conversión
+              // Banner informativo
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 5,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Título del banner
-                    const Text( "Convierte tu dinero al instante 💱",
+                    const Text(
+                      "Convierte tu dinero al instante 💱",
                       style: TextStyle(
                         fontSize: 22,
-                        fontWeight:FontWeight.bold,
+                        fontWeight: FontWeight.bold,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
-                    // Descripción del servicio
-                    Text( "Elige la moneda que deseas convertir y obtén el cambio al instante",
-                      style:TextStyle(
+                    Text(
+                      "Elige la moneda que deseas convertir y obtén el cambio al instante",
+                      style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey[700],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height:16),
-                    // Visualización de ejemplo de conversión
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Chip para moneda origen (USD)
-                        Chip(
-                          backgroundColor: Colors.white,
-                          avatar: const Icon(Icons.attach_money, color: Colors.green),
-                          label: const Text(
-                            "USD",
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
-                        // Icono de intercambio
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: Icon(Icons.swap_horiz, color: Theme.of(context).colorScheme.primary, size: 28),
-                        ),
-                        // Chip para moneda destino (EUR)
-                        Chip(
-                          backgroundColor: Colors.white,
-                          avatar: const Icon(Icons.euro, color: Colors.blue),
-                          label: const Text(
-                            "EUR",
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 24),
-              // Tarjeta de conversión: Contiene los campos para realizar la conversión
+              // Tarjeta de conversión
               Card(
                 elevation: 4,
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     children: [
-                      // Campo de entrada para la cantidad a convertir
+                      // Campo de cantidad
                       TextField(
                         decoration: InputDecoration(
                           labelText: 'Cantidad',
-                          labelStyle: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
                           prefixIcon: Icon(
                             Icons.attach_money,
                             color: Theme.of(context).colorScheme.primary,
                           ),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {}, // Limpiar el campo
-                          ),
                         ),
-                        keyboardType: TextInputType.number, // Teclado numérico
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          setState(() {
+                            cantidad = double.tryParse(value) ?? 0.0;
+                          });
+                        },
                       ),
                       const SizedBox(height: 20),
-                      // Selector de monedas con intercambio
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[300]!),
-                          borderRadius: BorderRadius.circular(16),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.1),
-                              blurRadius: 5,
-                              offset: const Offset(0, 2),
+                      // Selectores de moneda
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'De',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                DropdownButtonFormField<String>(
+                                  value: monedaOrigen,
+                                  hint: const Text('Selecciona una moneda'),
+                                  items: _monedas.map((moneda) {
+                                    return DropdownMenuItem(
+                                      value: moneda,
+                                      child: Text('$moneda'),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      monedaOrigen = value;
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                final temp = monedaOrigen;
+                                monedaOrigen = monedaDestino;
+                                monedaDestino = temp;
+                              });
+                            },
+                            icon: const Icon(Icons.swap_horiz),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'A',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                DropdownButtonFormField<String>(
+                                  value: monedaDestino,
+                                  hint: const Text('Selecciona una moneda'),
+                                  items: _monedas.map((moneda) {
+                                    return DropdownMenuItem(
+                                      value: moneda,
+                                      child: Text('$moneda'),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      monedaDestino = value;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      // Botón de conversión
+                      ElevatedButton(
+                        onPressed: (monedaOrigen == null || monedaDestino == null || _isLoading)
+                            ? null
+                            : convertirMoneda,
+                        child: _isLoading
+                            ? const CircularProgressIndicator()
+                            : const Text('Convertir'),
+                      ),
+                      const SizedBox(height: 16),
+                      // Resultado de la conversión
+                      if (resultado > 0)
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // Selector de moneda origen
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'De',
-                                      style: TextStyle(
-                                        color: Theme.of(context).colorScheme.primary,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    // Menú desplegable para seleccionar moneda origen
-                                    DropdownButtonFormField(
-                                      decoration: const InputDecoration(
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.zero,
-                                      ),
-                                      items: const [
-                                        DropdownMenuItem(value: 'USD', child: Text('USD 🇺🇸')),
-                                        DropdownMenuItem(value: 'EUR', child: Text('EUR 🇪🇺')),
-                                        DropdownMenuItem(value: 'GBP', child: Text('GBP 🇬🇧')),
-                                        DropdownMenuItem(value: 'HNL', child: Text('HNL 🇭🇳')),
-                                      ],
-                                      onChanged: (value) {}, // Actualizar moneda origen
-                                    ),
-                                  ],
+                              const Text(
+                                'Resultado:',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              // Botón para intercambiar monedas
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: IconButton(
-                                  onPressed: () {}, // Intercambiar monedas
-                                  icon: const Icon(Icons.swap_horiz),
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                              // Selector de moneda destino
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'A',
-                                      style: TextStyle(
-                                        color: Theme.of(context).colorScheme.primary,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    // Menú desplegable para seleccionar moneda destino
-                                    DropdownButtonFormField(
-                                      decoration: const InputDecoration(
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.zero,
-                                      ),
-                                      items: const [
-                                        DropdownMenuItem(value: 'EUR', child: Text('EUR 🇪🇺')),
-                                        DropdownMenuItem(value: 'USD', child: Text('USD 🇺🇸')),
-                                        DropdownMenuItem(value: 'GBP', child: Text('GBP 🇬🇧')),
-                                        DropdownMenuItem(value: 'HNL', child: Text('HNL 🇭🇳')),
-                                      ],
-                                      onChanged: (value) {}, // Actualizar moneda destino
-                                    ),
-                                  ],
+                              Text(
+                                '$resultado $monedaDestino',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      // Botón para realizar la conversión
-                      ElevatedButton.icon(
-                        onPressed: () {}, // Realizar el cálculo de conversión
-                        icon: const Icon(Icons.currency_exchange),
-                        label: const Text('Convertir'),
-                      ),
-                      const SizedBox(height: 16),
-                      // Contenedor para mostrar el resultado de la conversión
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Resultado:',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            // Valor resultado de la conversión
-                            Text(
-                              '€ 0.00',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),
