@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../main.dart';
+import 'package:coinflow/UX/theme_manager.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<GestorTema>(context);
+    final themeProvider = Provider.of<ThemeManager>(context);
     
     return Scaffold(
       appBar: AppBar(
