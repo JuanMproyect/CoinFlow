@@ -1,4 +1,4 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 //Modelo para representar una moneda
 class Currency {
@@ -180,7 +180,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                   borderRadius: BorderRadius.circular(20),
                 ),
                 filled: true,
-                fillColor: Colors.grey[200],
+                fillColor: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).colorScheme.surfaceVariant
+                    : Colors.grey[200],
               ),
               onChanged: (value) {
                 setState(() {
@@ -198,7 +200,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
   Widget _buildFavoritesSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      color: Theme.of(context).primaryColor.withOpacity(0.1),
+      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -216,7 +218,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                   alignment: Alignment.center,
                   child: Text(
                     'No tienes monedas favoritas',
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey[400]
+                          : Colors.grey[600]
+                    ),
                   ),
                 )
               : SizedBox(
@@ -296,14 +302,18 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                 Icon(
                   Icons.search_off,
                   size: 60,
-                  color: Colors.grey[400],
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.grey[500]
+                      : Colors.grey[400],
                 ),
                 const SizedBox(height: 16),
                 Text(
                   'No se encontraron monedas',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey[600],
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey[400]
+                        : Colors.grey[600],
                   ),
                 ),
               ],
