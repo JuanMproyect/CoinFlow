@@ -1,4 +1,4 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:coinflow/UX/home_design.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -30,7 +30,9 @@ class HomeScreen extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.white,
+              Theme.of(context).brightness == Brightness.dark
+                  ? Theme.of(context).colorScheme.background.withOpacity(0.8)
+                  : Colors.white,
               Theme.of(context).colorScheme.surface,
             ],
             begin: Alignment.topCenter,
