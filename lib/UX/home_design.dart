@@ -37,7 +37,12 @@ class ConversionBanner extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             "Elige la moneda que deseas convertir y obtén el cambio al instante",
-            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+            style: TextStyle(
+              fontSize: 16, 
+              color: Theme.of(context).brightness == Brightness.dark 
+                  ? Colors.grey[300] 
+                  : Colors.grey[700]
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -71,7 +76,9 @@ class CurrencyChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark 
+          ? Theme.of(context).colorScheme.surface 
+          : Colors.white,
       shadowColor: Colors.black26,
       elevation: 2,
       //Muestra la bandera del país 
@@ -79,7 +86,12 @@ class CurrencyChip extends StatelessWidget {
       // Muestra el código de la moneda
       label: Text(
         currencyCode,
-        style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          color: Theme.of(context).brightness == Brightness.dark 
+              ? Colors.white 
+              : Colors.black, 
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -249,9 +261,13 @@ class _ConversionCardState extends State<ConversionCard> with SingleTickerProvid
   Widget _buildCurrencySelector() {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark 
+              ? Theme.of(context).colorScheme.onSurface.withOpacity(0.2) 
+              : Colors.grey[300]!
+        ),
         borderRadius: BorderRadius.circular(16),
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
@@ -333,11 +349,18 @@ class _ConversionCardState extends State<ConversionCard> with SingleTickerProvid
                 //Código de la moneda
                 Text(
                   currency['code']!,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16, 
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
                 const Spacer(),
                 // Indicador de desplegable
-                const Icon(Icons.arrow_drop_down),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ],
             ),
           ),
@@ -387,11 +410,22 @@ class _ConversionCardState extends State<ConversionCard> with SingleTickerProvid
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.access_time_rounded, size: 14, color: Colors.grey[600]),
+              Icon(
+                Icons.access_time_rounded, 
+                size: 14, 
+                color: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.grey[400] 
+                    : Colors.grey[600]
+              ),
               const SizedBox(width: 4),
               Text(
                 'Actualizado: ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 12, 
+                  color: Theme.of(context).brightness == Brightness.dark 
+                      ? Colors.grey[400] 
+                      : Colors.grey[600]
+                ),
               ),
             ],
           ),
@@ -507,7 +541,9 @@ class _CurrencySelectorModalState extends State<_CurrencySelectorModal> {
               hintText: 'Buscar moneda',
               prefixIcon: const Icon(Icons.search),
               filled: true,
-              fillColor: Colors.grey[100],
+              fillColor: Theme.of(context).brightness == Brightness.dark 
+                  ? Theme.of(context).colorScheme.surfaceVariant 
+                  : Colors.grey[100],
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -539,12 +575,20 @@ class _CurrencySelectorModalState extends State<_CurrencySelectorModal> {
                   ),
                   child: ListTile(
                     leading: Text(currency['flag']!, style: const TextStyle(fontSize: 24)),
-                    title: Text(currency['code']!, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    title: Text(
+                      currency['code']!, 
+                      style: const TextStyle(fontWeight: FontWeight.bold)
+                    ),
                     subtitle: Text(currency['name']!),
                     //Muestra un check si la moneda está seleccionada
                     trailing: isSelected 
                         ? Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary)
-                        : const Icon(Icons.chevron_right),
+                        : Icon(
+                            Icons.chevron_right,
+                            color: Theme.of(context).brightness == Brightness.dark 
+                                ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7) 
+                                : Colors.grey[600],
+                          ),
                     onTap: () => widget.onSelect(currency),
                   ),
                 );
