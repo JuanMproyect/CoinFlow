@@ -71,23 +71,6 @@ class SettingsScreen extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             child: ListTile(
               leading: Icon(
-                Icons.language,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              title: const Text('Idioma'),
-              subtitle: const Text('Español'),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              onTap: () {},
-            ),
-          ),
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            child: ListTile(
-              leading: Icon(
               Icons.info,
               color: Theme.of(context).colorScheme.primary,
               ),
