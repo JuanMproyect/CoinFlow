@@ -7,15 +7,16 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'Services/firebase_options.dart';
 import 'UX/theme_manager.dart';
+import 'Screens/loading.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Asegura que Flutter esté inicializado
-  
+
   // Inicializar firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeManager(),
@@ -30,14 +31,14 @@ class CoinFlowApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeManager>(context);
-    
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'CoinFlow',
       themeMode: themeProvider.themeMode,
       theme: themeProvider.lightTheme,
       darkTheme: themeProvider.darkTheme,
-      home: const NavigationScreen(),
+       home: const LoadingScreen(),
     );
   }
 }
@@ -51,14 +52,15 @@ class NavigationScreen extends StatefulWidget {
 
 class _NavigationScreenState extends State<NavigationScreen> {
   int _selectedIndex = 0;
-  
+
   final List<Widget> _screens = const [
     HomeScreen(),
     FavoritesScreen(),
     HistoryScreen(),
     SettingsScreen(),
   ];
-
+  
+  //Barra inferior de la app
   @override
   Widget build(BuildContext context) {
     return Scaffold(
