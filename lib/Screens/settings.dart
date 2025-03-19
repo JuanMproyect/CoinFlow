@@ -50,6 +50,53 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           
+            // Tarjeta de idioma
+            Card(
+            margin: const EdgeInsets.only(bottom:16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Idioma',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                ),
+                const SizedBox(height: 16),
+                // Opción de idioma español
+                ListTile(
+                leading: Icon(
+                  Icons.language,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: const Text('Español'),
+                subtitle: const Text('Idioma predeterminado'),
+                trailing: Icon(
+                  Icons.check_circle,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                ),
+                // Pequeña nota de disponibilidad
+                Padding(
+                padding: const EdgeInsets.only(top: 8.0, left: 16.0),
+                child: Text(
+                  'Más idiomas estarán disponibles próximamente',
+                  style: TextStyle(
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                  color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey[400]
+                    : Colors.grey[600],
+                  ),
+                ),
+                ),
+              ],
+              ),
+            ),
+            ),
+          
           //Notificaciones **
            Card(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -67,6 +114,7 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
           ),
+          
           Card(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             child: ListTile(
