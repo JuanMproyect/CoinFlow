@@ -1,53 +1,55 @@
-![Estado del Proyecto](https://img.shields.io/badge/ESTADO-EN%20DESARROLLO-yellow)
+![Estado del Proyecto](https://img.shields.io/badge/ESTADO-COMPLETADO-brightgreen)
 ![Flutter](https://img.shields.io/badge/Flutter-v3.19-blue)
 ![Dart](https://img.shields.io/badge/Dart-v3.3-blue)
 ![IDE](https://img.shields.io/badge/IDE-Visual%20Studio%20Code%20%7C%20Android%20Studio-blue)
-![Base de Datos](https://img.shields.io/badge/Base_de_Datos-Por_definir_(SQL_%7C_Otros)-blue)
-![API](https://img.shields.io/badge/API-En_Búsqueda-lightgrey)
+![Base de Datos](https://img.shields.io/badge/Base_de_Datos-Firebase_Firestore-blue)
+![API](https://img.shields.io/badge/API-Exchangerate--API-lightgrey)
 
 # CoinFlow
 
-### Proyecto de la clase de Programación Móvil  
+### Proyecto de la clase de Programación Móvil
 
-Aplicación móvil para conversión de divisas con funcionalidades avanzadas. Diseñada para operar en modo **online** (tasas actualizadas) y **offline** (datos almacenados localmente), incluyendo un sistema de notificaciones y gestión personalizada de monedas favoritas.
-
----
-
-## Características Principales  
-
-✅ **Conversión en tiempo real**  
-- Consulta de tasas actualizadas mediante API externa (en proceso de selección).  
-- Modo offline con histórico de tasas recientes.  
-
-⭐ **Personalización**  
-- Registro de monedas favoritas para acceso rápido.  
-- Historial detallado de conversiones realizadas.  
-
-🔔 **Notificaciones inteligentes**  
-- Alertas automáticas sobre cambios en tasas de interés.  
-
-🤖 **Asistente virtual (opcional)**  
-- Chatbot integrado para asistencia en conversiones y preguntas frecuentes.  
+Aplicación móvil completa para la conversión de divisas, construida en Flutter con un enfoque moderno en usabilidad. Incluye sincronización en tiempo real, modo offline y un sistema de favoritos. También ofrece manejo de historial y configuración de tema (claro/oscuro).
 
 ---
 
-## Tecnologías y Herramientas  
+## Características Principales
 
-- **Framework:** Flutter  
-- **Lenguaje:** Dart  
-- **IDEs compatibles:** Visual Studio Code | Android Studio  
-- **Base de datos:** Por definir (SQL u otra compatible con Flutter)  
-- **Integración API:** En búsqueda de proveedor para tasas de cambio  
+- ✅ **Conversión en tiempo real**  
+  Utiliza Exchangerate-API para obtener las tasas de cambio actualizadas.
+
+- ⭐ **Personalización y Favoritos**  
+  Permite administrar monedas favoritas y cambiar rápidamente entre ellas.
+
+- ☁️ **Integración con Firebase Firestore**  
+  Almacena el historial de conversiones y los ajustes directamente en Firestore.
+
+- 🔔 **Notificaciones**  
+  (En desarrollo) Se planea enviar alertas basadas en cambios de tasas.
+
+- 🌗 **Tema Claro / Oscuro**  
+  Incluye un conmutador para cambiar entre modos de visualización.
+
+---
+
+## Requisitos
+
+- **Flutter SDK**: ≥ 3.19  
+- **Firebase Core**: Conectado a Firestore  
+- **HTTP & Provider**: Para consumo de APIs y manejo de estados  
+- **Dart**: ≥ 3.3
 
 ---
 
-## Requisitos  
+## Cómo Ejecutar
 
-- **Flutter SDK:** versión 3.19 o superior  
-- **Dependencias principales:**  
-  - `http`: Para consumo de APIs  
-  - `provider` o `bloc`: Gestión de estado  
-  - `shared_preferences` o `sqflite`: Almacenamiento local  
-  - `flutter_local_notifications`: Notificaciones push  
+1. Clonar este repositorio.
+2. Ejecutar:  
+   • flutter pub get  
+   • flutter run
+3. Establecer la clave de Exchangerate-API en el archivo de configuración.
+4. Asegurarse de que Firebase esté configurado en el proyecto para Firestore.
 
 ---
+
+¡Gracias por usar CoinFlow!
