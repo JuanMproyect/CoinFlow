@@ -32,6 +32,15 @@ Aplicación móvil completa para la conversión de divisas, construida en Flutte
 
 ---
 
+## Tecnologías
+- **Framework:** Flutter
+- **Lenguaje:** Dart
+- **Base de Datos:** Firebase Firestore
+- **API:** Exchangerate-API
+- **Editor / IDE:** Visual Studio Code, Android Studio
+
+---
+
 ## Requisitos
 
 - **Flutter SDK**: ≥ 3.19  
