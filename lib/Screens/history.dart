@@ -67,7 +67,7 @@ class HistoryScreen extends StatelessWidget {
           // Botón para eliminar historial
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            onPressed: () => _borrarHistorial(context),  // Llamar a la función de borrado
+            onPressed: () => _borrarHistorial(context),  //Llamar a la función de borrado
           ),
         ],
       ),
@@ -127,7 +127,7 @@ class HistoryScreen extends StatelessWidget {
               var resultado = conversion['resultado'];
               var fecha = (conversion['fecha'] as Timestamp).toDate();
 
-              // Formato de la fecha
+              //Formato de la fecha
               String formattedDate = "${fecha.day}/${fecha.month}/${fecha.year} ${fecha.hour}:${fecha.minute}";
 
               return Card(
