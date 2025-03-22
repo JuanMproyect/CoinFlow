@@ -389,7 +389,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.2),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Theme.of(context).primaryColor.withOpacity(0.3)
+                      : Theme.of(context).primaryColor.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -397,7 +399,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                     currency.symbol.substring(0, 1),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Theme.of(context).primaryColor,
                     ),
                   ),
                 ),
@@ -473,16 +477,24 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
-      color: isFavorite ? Colors.blue.withOpacity(0.05) : null,
+      color: isFavorite ? 
+        (Theme.of(context).brightness == Brightness.dark 
+          ? Colors.blue.withOpacity(0.15) 
+          : Colors.blue.withOpacity(0.05)) 
+        : null,
       child: ListTile(
         // Se eliminó el onTap para que no muestre información al hacer tap
         leading: Container(
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: isFavorite 
-              ? Theme.of(context).primaryColor.withOpacity(0.2) 
-              : Theme.of(context).primaryColor.withOpacity(0.1),
+            color: Theme.of(context).brightness == Brightness.dark
+              ? (isFavorite 
+                ? Theme.of(context).primaryColor.withOpacity(0.4) 
+                : Colors.white.withOpacity(0.15))
+              : (isFavorite 
+                ? Theme.of(context).primaryColor.withOpacity(0.2) 
+                : Theme.of(context).primaryColor.withOpacity(0.1)),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Center(
@@ -490,9 +502,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
               currency.symbol.substring(0, 1),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: isFavorite 
-                  ? Theme.of(context).primaryColor 
-                  : Theme.of(context).primaryColor.withOpacity(0.8),
+                color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : (isFavorite 
+                    ? Theme.of(context).primaryColor 
+                    : Theme.of(context).primaryColor.withOpacity(0.8)),
               ),
             ),
           ),
@@ -584,7 +598,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
     return ListTile(
       leading: Icon(
         icon,
-        color: isSelected ? Theme.of(context).primaryColor : null,
+        color: isSelected 
+          ? Theme.of(context).primaryColor 
+          : (Theme.of(context).brightness == Brightness.dark ? Colors.white70 : null),
       ),
       title: Text(
         label,
