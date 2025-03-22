@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Pantalla que muestra el historial de conversiones realizadas
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
 
-  // Función para borrar todos los registros de la colección 'conversiones'
+  /// Borra todos los registros del historial de conversiones
   Future<void> _borrarHistorial(BuildContext context) async {
     try {
-      // Confirmar con el usuario antes de eliminar
-      final confirm = await showDialog<bool>(
+      // Solicitar confirmación al usuario antes de eliminar
+      final confirmar = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -28,36 +29,36 @@ class HistoryScreen extends StatelessWidget {
         },
       );
 
-      if (confirm == true) {
+      if (confirmar == true) {
         // Obtener todos los documentos de la colección 'conversiones'
-        final collection = FirebaseFirestore.instance.collection('conversiones');
-        final snapshot = await collection.get();
+        final coleccion = FirebaseFirestore.instance.collection('conversiones');
+        final snapshot = await coleccion.get();
 
         // Eliminar cada documento
         for (var doc in snapshot.docs) {
           await doc.reference.delete();
         }
 
-        // Mostrar un mensaje de éxito
+        // Mostrar mensaje de éxito
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Historial eliminado correctamente')),
         );
       }
     } catch (e) {
-      // Si ocurre un error al eliminar
+      // Manejar errores durante la eliminación
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al eliminar historial: $e')),
       );
     }
   }
 
-  // Función para borrar una conversión individual
-  Future<void> _borrarConversion(BuildContext context, String docId) async {
+  /// Borra una conversión individual del historial
+  Future<void> _borrarConversion(BuildContext context, String idDocumento) async {
     try {
       // Obtener referencia al documento y eliminarlo
-      await FirebaseFirestore.instance.collection('conversiones').doc(docId).delete();
+      await FirebaseFirestore.instance.collection('conversiones').doc(idDocumento).delete();
       
-      // Mostrar confirmación
+      // Mostrar confirmación al usuario
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Conversión eliminada'),
@@ -65,7 +66,7 @@ class HistoryScreen extends StatelessWidget {
         ),
       );
     } catch (e) {
-      // Si ocurre un error al eliminar
+      // Manejar errores durante la eliminación
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al eliminar: $e')),
       );
@@ -85,23 +86,25 @@ class HistoryScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          // Botón para eliminar historial
+          // Botón para eliminar todo el historial
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            onPressed: () => _borrarHistorial(context),  //Llamar a la función de borrado
+            onPressed: () => _borrarHistorial(context),
           ),
         ],
       ),
       body: FutureBuilder<QuerySnapshot>(
         future: FirebaseFirestore.instance
             .collection('conversiones')
-            .orderBy('fecha', descending: true) // Ordenar por la fecha de forma ascendente
+            .orderBy('fecha', descending: true) // Ordenar por fecha, más recientes primero
             .get(),
         builder: (context, snapshot) {
+          // Mostrar indicador de carga mientras se obtienen los datos
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
+          // Mostrar mensaje si no hay conversiones
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return Center(
               child: Column(
@@ -135,25 +138,27 @@ class HistoryScreen extends StatelessWidget {
             );
           }
 
-          // Mostrar las conversiones
+          // Mostrar la lista de conversiones
           final conversiones = snapshot.data!.docs;
 
           return ListView.builder(
             itemCount: conversiones.length,
             itemBuilder: (context, index) {
               var conversion = conversiones[index];
-              var docId = conversion.id; // Obtener el ID del documento
+              var idDocumento = conversion.id;
               var cantidad = conversion['cantidad'];
               var monedaOrigen = conversion['monedaOrigen'];
               var monedaDestino = conversion['monedaDestino'];
               var resultado = conversion['resultado'];
               var fecha = (conversion['fecha'] as Timestamp).toDate();
 
-              //Formato de la fecha
-              String formattedDate = "${fecha.day}/${fecha.month}/${fecha.year} ${fecha.hour}:${fecha.minute}";
+              // Formatear la fecha para mostrarla
+              String fechaFormateada = "${fecha.day}/${fecha.month}/${fecha.year} ${fecha.hour}:${fecha.minute}";
 
+              // Widget Dismissible para permitir eliminar deslizando
               return Dismissible(
-                key: Key(docId),
+                key: Key(idDocumento),
+                // Fondo mostrado al deslizar desde la izquierda
                 background: Container(
                   color: Colors.red,
                   alignment: Alignment.centerLeft,
@@ -176,6 +181,7 @@ class HistoryScreen extends StatelessWidget {
                     ],
                   ),
                 ),
+                // Fondo mostrado al deslizar desde la derecha
                 secondaryBackground: Container(
                   color: Colors.red,
                   alignment: Alignment.centerRight,
@@ -199,8 +205,8 @@ class HistoryScreen extends StatelessWidget {
                     ],
                   ),
                 ),
+                // Pedir confirmación antes de eliminar
                 confirmDismiss: (direction) async {
-                  // Mostrar diálogo de confirmación
                   return await showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -221,10 +227,11 @@ class HistoryScreen extends StatelessWidget {
                     },
                   );
                 },
+                // Acción al confirmar eliminación
                 onDismissed: (direction) {
-                  // Eliminar la conversión cuando se confirma el deslizamiento
-                  _borrarConversion(context, docId);
+                  _borrarConversion(context, idDocumento);
                 },
+                // Contenido del elemento del historial
                 child: Card(
                   margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   elevation: 4,
@@ -241,7 +248,7 @@ class HistoryScreen extends StatelessWidget {
                       ),
                     ),
                     subtitle: Text(
-                      'Fecha: $formattedDate',
+                      'Fecha: $fechaFormateada',
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 14,
@@ -252,6 +259,7 @@ class HistoryScreen extends StatelessWidget {
                       size: 18,
                     ),
                     onTap: () {
+                      // Acción al tocar un elemento (por implementar)
                     },
                   ),
                 ),

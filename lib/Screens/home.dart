@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coinflow/UX/home_design.dart';
 import '../Services/api_service.dart';
-import '../Services/currency_data.dart'; // Importamos la nueva clase
+import '../Services/currency_data.dart';
 
+/// Pantalla principal para la conversión de monedas
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -12,85 +13,91 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final CurrencyService _currencyService = CurrencyService();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // Servicios para API y base de datos
+  final CurrencyService _servicioDivisas = CurrencyService();
+  final FirebaseFirestore _baseDatos = FirebaseFirestore.instance;
 
-  //Estados de la conversión
+  // Estados de la conversión
   double cantidad = 0.0;
   String? monedaOrigen;
   String? monedaDestino;
   double resultado = 0.0;
-  bool _isLoading = false;
-  bool _isLoadingCurrencies = false;
-  List<String> _monedas = [];
-  List<String> _monedasFiltradas = [];
+  bool _cargando = false;
+  bool _cargandoDivisas = false;
+  List<String> _divisas = []; // Lista completa de divisas
+  List<String> _divisasFiltradas = []; // Lista de divisas filtrada por búsqueda
   String _busqueda = '';
   
-  //usar las listas de currency data
-  final List<String> _monedasMostrar = CurrencyData.monedasMostrar;
-  final Map<String, String> _nombreMonedas = CurrencyData.nombreMonedas;
-  final bool _filtrarMonedas = true;
+  // Uso de las listas predefinidas de CurrencyData
+  final List<String> _divisasMostrar = CurrencyData.monedasMostrar;
+  final Map<String, String> _nombreDivisas = CurrencyData.nombreMonedas;
+  final bool _filtrarDivisas = true;
 
   @override
   void initState() {
     super.initState();
-    loadCurrencies();
+    cargarDivisas(); // Cargar divisas al iniciar
   }
 
-  //Método para cargar las monedas disponibles
-  Future<void> loadCurrencies() async {
-    setState(() => _isLoadingCurrencies = true);
+  /// Carga las divisas disponibles desde la API
+  Future<void> cargarDivisas() async {
+    setState(() => _cargandoDivisas = true);
     
     try {
-      final monedasDisponibles = await _currencyService.getAvailableCurrencies('USD');
+      // Obtener las divisas disponibles desde el servicio
+      final divisasDisponibles = await _servicioDivisas.getAvailableCurrencies('USD');
       
       setState(() {
-        if (_filtrarMonedas) {
-          _monedas = monedasDisponibles
-              .where((moneda) => _monedasMostrar.contains(moneda))
+        if (_filtrarDivisas) {
+          // Filtrar solo las divisas que están en la lista predefinida
+          _divisas = divisasDisponibles
+              .where((divisa) => _divisasMostrar.contains(divisa))
               .toList();
           
-          //usar la función de ordenamiento de CurrencyData
-          _monedas = CurrencyData.ordenarMonedas(_monedas);
+          // Ordenar según el orden predefinido
+          _divisas = CurrencyData.ordenarMonedas(_divisas);
         } else {
-          _monedas = monedasDisponibles;
+          _divisas = divisasDisponibles;
         }
-        _monedasFiltradas = List.from(_monedas);
+        // Inicializar la lista filtrada con todas las divisas
+        _divisasFiltradas = List.from(_divisas);
       });
     } catch (e) {
       _mostrarError('Error al cargar monedas: $e');
     } finally {
-      setState(() => _isLoadingCurrencies = false);
+      setState(() => _cargandoDivisas = false);
     }
   }
 
-  //Método para filtrar monedas según búsqueda 
-  void _filtrarPorBusqueda(String query) {
+  /// Filtra divisas según el texto de búsqueda
+  void _filtrarPorBusqueda(String consulta) {
     setState(() {
-      _busqueda = query;
-      if (query.isEmpty) {
-        _monedasFiltradas = List.from(_monedas);
+      _busqueda = consulta;
+      if (consulta.isEmpty) {
+        // Si no hay texto de búsqueda, mostrar todas las divisas
+        _divisasFiltradas = List.from(_divisas);
       } else {
-        _monedasFiltradas = _monedas.where((moneda) {
-          final nombreCompleto = _nombreMonedas[moneda] ?? '';
-          return moneda.toLowerCase().contains(query.toLowerCase()) ||
-                 nombreCompleto.toLowerCase().contains(query.toLowerCase());
+        // Filtrar por código o nombre de divisa
+        _divisasFiltradas = _divisas.where((divisa) {
+          final nombreCompleto = _nombreDivisas[divisa] ?? '';
+          return divisa.toLowerCase().contains(consulta.toLowerCase()) ||
+                 nombreCompleto.toLowerCase().contains(consulta.toLowerCase());
         }).toList();
       }
     });
   }
 
-  // Método para mostrar errores
+  /// Muestra un mensaje de error al usuario
   void _mostrarError(String mensaje) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(mensaje), backgroundColor: Colors.red)
     );
   }
 
-  // Método para guardar la conversión en Firestore
+  /// Guarda la conversión realizada en Firestore
   Future<void> _guardarConversion() async {
     try {
-      await _firestore.collection('conversiones').add({
+      await _baseDatos.collection('conversiones').add({
         'cantidad': cantidad,
         'monedaOrigen': monedaOrigen,
         'monedaDestino': monedaDestino,
@@ -102,51 +109,55 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Método para realizar la conversión
+  /// Realiza la conversión de moneda utilizando el servicio API
   Future<void> convertirMoneda() async {
     if (cantidad <= 0 || monedaOrigen == null || monedaDestino == null) {
       _mostrarError('Por favor, completa todos los campos.');
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() => _cargando = true);
 
     try {
-      final resultadoConversion = await _currencyService.convertCurrency(
+      // Llamar al servicio para realizar la conversión
+      final resultadoConversion = await _servicioDivisas.convertCurrency(
         cantidad, monedaOrigen!, monedaDestino!,
       );
       setState(() => resultado = resultadoConversion);
+      // Guardar la conversión en la base de datos
       await _guardarConversion();
     } catch (e) {
       _mostrarError('Error: $e');
     } finally {
-      setState(() => _isLoading = false);
+      setState(() => _cargando = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Utiliza el widget de diseño de la UI
     return ConversorMonedaScreen(
-      monedas: _monedasFiltradas,
-      isLoadingCurrencies: _isLoadingCurrencies,
-      isLoading: _isLoading,
+      monedas: _divisasFiltradas,
+      isLoadingCurrencies: _cargandoDivisas,
+      isLoading: _cargando,
       monedaOrigen: monedaOrigen,
       monedaDestino: monedaDestino,
       resultado: resultado,
-      nombreMonedas: _nombreMonedas,
+      nombreMonedas: _nombreDivisas,
       textoBusqueda: _busqueda,
-      // Callbacks para actualizar estado
-      actualizarCantidad: (value) => setState(() => cantidad = double.tryParse(value) ?? 0.0),
-      actualizarMonedaOrigen: (value) => setState(() => monedaOrigen = value),
-      actualizarMonedaDestino: (value) => setState(() => monedaDestino = value),
+      // Callbacks para actualizar el estado
+      actualizarCantidad: (valor) => setState(() => cantidad = double.tryParse(valor) ?? 0.0),
+      actualizarMonedaOrigen: (valor) => setState(() => monedaOrigen = valor),
+      actualizarMonedaDestino: (valor) => setState(() => monedaDestino = valor),
       actualizarBusqueda: _filtrarPorBusqueda,
       intercambiarMonedas: () => setState(() {
+        // Intercambiar las monedas de origen y destino
         final temp = monedaOrigen;
         monedaOrigen = monedaDestino;
         monedaDestino = temp;
       }),
       convertirMoneda: convertirMoneda,
-      monedaOriginal: _monedas,
+      monedaOriginal: _divisas,
     );
   }
 }

@@ -1,7 +1,9 @@
- import 'package:coinflow/main.dart';
+import 'package:coinflow/main.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+/// Pantalla de carga inicial con animaciones
+/// Se muestra mientras la aplicación inicializa componentes necesarios
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({Key? key}) : super(key: key);
 
@@ -10,79 +12,83 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> with TickerProviderStateMixin {
-  late AnimationController _logoController;
-  late AnimationController _textController;
-  late AnimationController _spinnerController;
+  // Controladores para las animaciones
+  late AnimationController _controladorLogo;
+  late AnimationController _controladorTexto;
+  late AnimationController _controladorSpinner;
   
-  late Animation<double> _logoScaleAnimation;
-  late Animation<double> _textScaleAnimation;
-  late Animation<double> _spinnerFadeAnimation;
+  // Animaciones de escala y opacidad
+  late Animation<double> _animacionEscalaLogo;
+  late Animation<double> _animacionEscalaTexto;
+  late Animation<double> _animacionOpacidadSpinner;
   
   @override
   void initState() {
     super.initState();
     
-    //Controladores de animación
-    _logoController = AnimationController(
+    // Inicialización de controladores de animación
+    _controladorLogo = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
     
-    _textController = AnimationController(
+    _controladorTexto = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
     
-    _spinnerController = AnimationController(
+    _controladorSpinner = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
     
-    //Animaciones pop
-    _logoScaleAnimation = Tween<double>(
+    // Configuración de animaciones de escala con efecto elástico
+    _animacionEscalaLogo = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(
-      parent: _logoController,
+      parent: _controladorLogo,
+      curve: Curves.elasticOut, // Efecto rebote al final
+    ));
+    
+    _animacionEscalaTexto = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _controladorTexto,
       curve: Curves.elasticOut,
     ));
     
-    _textScaleAnimation = Tween<double>(
+    // Configuración de animación de opacidad para el spinner
+    _animacionOpacidadSpinner = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(
-      parent: _textController,
-      curve: Curves.elasticOut,
-    ));
-    
-    //Animacion de spinner
-    _spinnerFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _spinnerController,
-      curve: Curves.easeIn,
+      parent: _controladorSpinner,
+      curve: Curves.easeIn, // Aparición gradual
     ));
 
     _iniciarAnimaciones(); // Secuencia de animaciones
     _iniciarAplicacion();   // Navegar después de completar animaciones
   }
   
-  void _iniciarAnimaciones() async { // Iniciar animaciones en secuencia
+  /// Inicia la secuencia de animaciones con retrasos programados
+  void _iniciarAnimaciones() async { 
     await Future.delayed(const Duration(milliseconds: 200));
-    _logoController.forward();
+    _controladorLogo.forward(); // Comienza la animación del logo
     
     await Future.delayed(const Duration(milliseconds: 400));
-    _textController.forward();
+    _controladorTexto.forward(); // Comienza la animación del texto
     
     await Future.delayed(const Duration(milliseconds: 600));
-    _spinnerController.forward();
+    _controladorSpinner.forward(); // Comienza la animación del spinner
   }
 
+  /// Navega a la pantalla principal después de un tiempo de espera
   Future<void> _iniciarAplicacion() async {
-    //Tiempo para que se vean las animaciones
+    // Tiempo para que se vean las animaciones completas
     await Future.delayed(const Duration(seconds: 3));
-    if (mounted){
+    if (mounted){ // Verifica que el widget aún esté montado
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const NavigationScreen()),
@@ -92,9 +98,10 @@ class _LoadingScreenState extends State<LoadingScreen> with TickerProviderStateM
 
   @override
   void dispose() {
-    _logoController.dispose();
-    _textController.dispose();
-    _spinnerController.dispose();
+    // Liberar recursos de los controladores
+    _controladorLogo.dispose();
+    _controladorTexto.dispose();
+    _controladorSpinner.dispose();
     super.dispose();
   }
 
@@ -106,9 +113,9 @@ class _LoadingScreenState extends State<LoadingScreen> with TickerProviderStateM
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            //Logo con animación pop
+            // Logo con animación de escala
             ScaleTransition(
-              scale: _logoScaleAnimation,
+              scale: _animacionEscalaLogo,
               child: Image.asset(
                 'assets/logo.png',
                 height: 150,
@@ -116,10 +123,10 @@ class _LoadingScreenState extends State<LoadingScreen> with TickerProviderStateM
             ),
             const SizedBox(height: 30),
             
-            //Texto con animación pop
+            // Texto con animación de escala
             ScaleTransition(
-              scale: _textScaleAnimation,
-              child:Text(
+              scale: _animacionEscalaTexto,
+              child: Text(
                 'Conversor de Monedas',
                 style: TextStyle(
                   color: Theme.of(context).primaryColor,
@@ -130,9 +137,9 @@ class _LoadingScreenState extends State<LoadingScreen> with TickerProviderStateM
             ),
             const SizedBox(height: 20),
             
-            // Indicador de carga 
+            // Indicador de carga con animación de opacidad
             FadeTransition(
-              opacity: _spinnerFadeAnimation,
+              opacity: _animacionOpacidadSpinner,
               child: CircularProgressIndicator(
                 color: Theme.of(context).primaryColor,
               ),
