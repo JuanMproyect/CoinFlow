@@ -51,6 +51,27 @@ class HistoryScreen extends StatelessWidget {
     }
   }
 
+  // Función para borrar una conversión individual
+  Future<void> _borrarConversion(BuildContext context, String docId) async {
+    try {
+      // Obtener referencia al documento y eliminarlo
+      await FirebaseFirestore.instance.collection('conversiones').doc(docId).delete();
+      
+      // Mostrar confirmación
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Conversión eliminada'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      // Si ocurre un error al eliminar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al eliminar: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,6 +142,7 @@ class HistoryScreen extends StatelessWidget {
             itemCount: conversiones.length,
             itemBuilder: (context, index) {
               var conversion = conversiones[index];
+              var docId = conversion.id; // Obtener el ID del documento
               var cantidad = conversion['cantidad'];
               var monedaOrigen = conversion['monedaOrigen'];
               var monedaDestino = conversion['monedaDestino'];
@@ -130,34 +152,108 @@ class HistoryScreen extends StatelessWidget {
               //Formato de la fecha
               String formattedDate = "${fecha.day}/${fecha.month}/${fecha.year} ${fecha.hour}:${fecha.minute}";
 
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              return Dismissible(
+                key: Key(docId),
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.only(left: 20.0),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        "Eliminar",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(16),
-                  title: Text(
-                    '$cantidad $monedaOrigen = $resultado $monedaDestino',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                secondaryBackground: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20.0),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        "Eliminar",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ],
+                  ),
+                ),
+                confirmDismiss: (direction) async {
+                  // Mostrar diálogo de confirmación
+                  return await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Confirmar'),
+                        content: const Text('¿Estás seguro de eliminar esta conversión?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('Cancelar'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('Eliminar'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                onDismissed: (direction) {
+                  // Eliminar la conversión cuando se confirma el deslizamiento
+                  _borrarConversion(context, docId);
+                },
+                child: Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
+                    title: Text(
+                      '$cantidad $monedaOrigen = $resultado $monedaDestino',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  subtitle: Text(
-                    'Fecha: $formattedDate',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
+                    subtitle: Text(
+                      'Fecha: $formattedDate',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
                     ),
+                    trailing: const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 18,
+                    ),
+                    onTap: () {
+                    },
                   ),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 18,
-                  ),
-                  onTap: () {
-                  },
                 ),
               );
             },
