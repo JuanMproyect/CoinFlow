@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class CurrencyService {
-  final String apiKey = '6471971caa9171a4ffdd5b5f';  // Reemplaza con tu clave de API
+  final String apiKey = '6471971caa9171a4ffdd5b5f';  //clave API
   final String baseUrl = 'https://v6.exchangerate-api.com/v6';  // URL base de la API
 
   // Función para obtener tasas de cambio
